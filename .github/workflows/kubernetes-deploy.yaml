@@ -1,0 +1,49 @@
+name: Deploy to Kubernetes
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      image-tag:
+        required: true
+        type: string
+      template:
+        required: true
+        type: string
+
+jobs:
+  kubernetes:
+    runs-on: ${{ inputs.environment }}
+    timeout-minutes: 10
+    steps:
+      - name: Checkout helm charts repository
+        uses: actions/checkout@v7
+        with:
+          repository: sevria/helm-charts
+
+      - name: Determine namespace by template
+        id: namespace
+        shell: bash
+        run: |
+          case "${{ inputs.template }}" in
+            service)
+              namespace="backend"
+              ;;
+            *)
+              echo "Unknown template: ${{ inputs.template }}"
+              exit 1
+              ;;
+          esac
+
+          echo "namespace=$namespace" >> "$GITHUB_OUTPUT"
+          echo "Using namespace: $namespace"
+
+      - name: Deploy
+        run: |
+          helm upgrade --install \
+            ${{ github.event.repository.name }} \
+            ./charts/${{ inputs.template }} \
+            --namespace ${{ steps.namespace.outputs.namespace }} \
+            --set deployment.image.tag=${{ inputs.image-tag }}
