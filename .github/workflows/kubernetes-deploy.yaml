@@ -44,6 +44,6 @@ jobs:
         run: |
           helm upgrade --install \
             ${{ github.event.repository.name }} \
-            ./charts/${{ inputs.template }} \
+            ${{ inputs.template }} \
             --namespace ${{ steps.namespace.outputs.namespace }} \
             --set deployment.image.tag=${{ inputs.image-tag }}
