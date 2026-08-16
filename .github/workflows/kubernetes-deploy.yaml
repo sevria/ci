@@ -46,4 +46,4 @@ jobs:
             ${{ github.event.repository.name }} \
             ${{ inputs.template }} \
             --namespace ${{ steps.namespace.outputs.namespace }} \
-            --set deployment.image.tag=${{ inputs.image-tag }}
+            --set deployment.image.tag=ghcr.io/sevria/${{ github.event.repository.name }}:${{ inputs.image-tag }}
